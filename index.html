@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win el Qattous? - Tunisian Arabic Prepositions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdf4;
+            color: #1e293b;
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .option-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Game Canvas specific styles */
+        #canvas-area {
+            position: relative;
+            height: 260px;
+            width: 100%;
+            background: linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 70%, #dcfce7 70%, #bbf7d0 100%);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 4px solid #cbd5e1;
+        }
+
+        .game-entity {
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        /* Hide scrollbar for cleaner look on small screens */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header / Nav -->
+    <header class="bg-emerald-600 text-white p-4 shadow-md flex justify-between items-center relative z-10">
+        <h1 class="text-xl md:text-2xl font-black tracking-wide">🐱 Win el Qattous?</h1>
+        <button onclick="goHome()" class="bg-emerald-500 hover:bg-emerald-400 px-4 py-2 rounded-lg font-bold shadow-sm transition-colors flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            Home
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div id="app-container" class="bg-white max-w-2xl w-full rounded-2xl shadow-xl overflow-hidden p-6 md:p-8">
+            
+            <!-- HOME SCREEN -->
+            <div id="home-screen" class="block">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-black text-emerald-600 mb-2">Learn Prepositions!</h2>
+                    <p class="text-slate-500">Master Tunisian Arabic prepositions of location.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                        <h3 class="font-bold text-lg text-slate-700 mb-3 border-b pb-2">📍 Prepositions</h3>
+                        <ul class="space-y-2 text-sm md:text-base text-slate-600">
+                            <li><strong class="text-emerald-600">fouq:</strong> above / on</li>
+                            <li><strong class="text-emerald-600">ta7t:</strong> under</li>
+                            <li><strong class="text-emerald-600">bijnab:</strong> next to</li>
+                            <li><strong class="text-emerald-600">ba7tha:</strong> near</li>
+                            <li><strong class="text-emerald-600">qoddem:</strong> in front of</li>
+                            <li><strong class="text-emerald-600">wra:</strong> behind</li>
+                            <li><strong class="text-emerald-600">fi wist:</strong> inside</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                        <h3 class="font-bold text-lg text-slate-700 mb-3 border-b pb-2">📦 Nouns</h3>
+                        <ul class="space-y-2 text-sm md:text-base text-slate-600">
+                            <li><strong class="text-sky-600">el qattous:</strong> the cat</li>
+                            <li><strong class="text-sky-600">et-tawla:</strong> the table</li>
+                            <li><strong class="text-sky-600">el korsi:</strong> the chair</li>
+                            <li><strong class="text-sky-600">el kardouna:</strong> the box</li>
+                            <li><strong class="text-sky-600">ed-dar:</strong> the house</li>
+                            <li><strong class="text-sky-600">el karhba:</strong> the car</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <button onclick="startNewGame()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xl font-black py-4 rounded-xl shadow-lg transition-transform hover:scale-[1.02] active:scale-95">
+                    Start Game 🚀
+                </button>
+            </div>
+
+            <!-- GAME SCREEN -->
+            <div id="game-screen" class="hidden">
+                <!-- Stats Header -->
+                <div class="flex justify-between items-center mb-6 text-slate-500 font-bold">
+                    <div class="flex items-center gap-2">
+                        <span>Progress:</span>
+                        <div class="w-24 md:w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-sky-500 w-0 transition-all duration-300"></div>
+                        </div>
+                        <span id="progress-text" class="text-sm ml-1">1/10</span>
+                    </div>
+                    <div>
+                        Score: <span id="current-score" class="text-emerald-500 text-xl">0</span>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-2">Win el qattous?</h2>
+                    <p class="text-lg md:text-xl font-semibold text-slate-600">
+                        el qattous <span class="inline-block min-w-[80px] border-b-2 border-slate-400 px-2 text-sky-600" id="blank-space">...</span> <span id="question-noun">et-tawla</span>
+                    </p>
+                    <!-- English Translation -->
+                    <p id="english-translation" class="text-md text-slate-400 mt-2 font-medium italic"></p>
+                </div>
+
+                <!-- Visual Canvas -->
+                <div id="canvas-area" class="mb-8 bounce-in">
+                    <!-- Noun SVG -->
+                    <div id="canvas-noun" class="game-entity w-[120px] h-[120px] bottom-[30%] left-1/2 -translate-x-1/2 flex items-end justify-center">
+                        <!-- SVG content injected via JS -->
+                    </div>
+                    <!-- Cat SVG -->
+                    <div id="canvas-cat" class="game-entity w-[60px] h-[60px]">
+                        <!-- Cat SVG -->
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/20w0/svg" class="w-full h-full drop-shadow-md">
+                            <path d="M32 58C45.2548 58 56 47.2548 56 34C56 20.7452 45.2548 10 32 10C18.7452 10 8 20.7452 8 34C8 47.2548 18.7452 58 32 58Z" fill="#F59E0B"/>
+                            <path d="M14 26L8 8L26 14C27.8683 13.3496 29.8943 13 32 13C34.1057 13 36.1317 13.3496 38 14L56 8L50 26" fill="#F59E0B"/>
+                            <path d="M22 30C23.6569 30 25 28.6569 25 27C25 25.3431 23.6569 24 22 24C20.3431 24 19 25.3431 19 27C19 28.6569 20.3431 30 22 30Z" fill="#4B5563"/>
+                            <path d="M42 30C43.6569 30 45 28.6569 45 27C45 25.3431 43.6569 24 42 24C40.3431 24 39 25.3431 39 27C39 28.6569 40.3431 30 42 30Z" fill="#4B5563"/>
+                            <path d="M32 36C34.2091 36 36 34.2091 36 32H28C28 34.2091 29.7909 36 32 36Z" fill="#EF4444"/>
+                            <!-- whiskers -->
+                            <path d="M18 36L6 34M18 40L6 42M46 36L58 34M46 40L58 42" stroke="#4B5563" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Buttons injected via JS -->
+                </div>
+                
+                <!-- Feedback overlay (hidden by default) -->
+                <div id="feedback-msg" class="hidden mt-4 text-center font-bold text-lg rounded-lg p-3"></div>
+                <button id="next-btn" onclick="handleNext()" class="hidden w-full mt-4 bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition-transform active:scale-95">
+                    Next Question ➡️
+                </button>
+            </div>
+
+            <!-- RESULT SCREEN -->
+            <div id="result-screen" class="hidden text-center">
+                <h2 class="text-3xl font-black text-slate-800 mb-2">Session Complete!</h2>
+                <p class="text-xl text-slate-600 mb-6">Your Score: <span id="final-score" class="text-emerald-500 font-bold text-3xl">0</span></p>
+
+                <div id="wrong-answers-container" class="hidden mb-8 text-left">
+                    <h3 class="font-bold text-red-500 mb-3 border-b pb-2">Let's review these:</h3>
+                    <ul id="wrong-answers-list" class="space-y-3">
+                        <!-- Wrong answers injected here -->
+                    </ul>
+                    
+                    <button onclick="startPracticeMode()" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Practice Wrong Answers
+                    </button>
+                </div>
+                
+                <div id="perfect-score-msg" class="hidden mb-8">
+                    <p class="text-2xl">🌟 Awesome! Perfect Score! 🌟</p>
+                </div>
+
+                <button onclick="goHome()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition-transform active:scale-95">
+                    Back to Home
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-300 text-center py-4 text-sm mt-auto">
+        <p>Astafeed Tunisian Arabic &copy; <span id="year"></span> | All rights reserved</p>
+    </footer>
+
+    <!-- Game Logic -->
+    <script>
+        document.getElementById('year').innerText = new Date().getFullYear();
+
+        // Data Definitions
+        const prepositions = [
+            { id: 'fouq', ar: 'fouq', en: 'on' },
+            { id: 'ta7t', ar: 'ta7t', en: 'under' },
+            { id: 'bijnab', ar: 'bijnab', en: 'next to' },
+            { id: 'ba7tha', ar: 'ba7tha', en: 'near' },
+            { id: 'qoddem', ar: 'qoddem', en: 'in front of' },
+            { id: 'wra', ar: 'wra', en: 'behind' },
+            { id: 'fi wist', ar: 'fi wist', en: 'inside' }
+        ];
+
+        const nouns = [
+            { id: 'et-tawla', ar: 'et-tawla', en: 'the table', 
+              svg: `<svg viewBox="0 0 100 100" fill="none" class="w-full h-full drop-shadow-lg"><rect x="10" y="30" width="80" height="10" rx="2" fill="#8B4513"/><rect x="15" y="40" width="8" height="60" fill="#A0522D"/><rect x="77" y="40" width="8" height="60" fill="#A0522D"/></svg>` },
+            { id: 'el korsi', ar: 'el korsi', en: 'the chair',
+              svg: `<svg viewBox="0 0 100 100" fill="none" class="w-full h-full drop-shadow-lg"><rect x="25" y="50" width="50" height="8" rx="2" fill="#8B4513"/><rect x="30" y="58" width="6" height="42" fill="#A0522D"/><rect x="64" y="58" width="6" height="42" fill="#A0522D"/><rect x="25" y="10" width="8" height="40" fill="#A0522D"/><rect x="67" y="10" width="8" height="40" fill="#A0522D"/><rect x="33" y="15" width="34" height="25" rx="2" fill="#8B4513"/></svg>` },
+            { id: 'el kardouna', ar: 'el kardouna', en: 'the box',
+              svg: `<svg viewBox="0 0 100 100" fill="none" class="w-full h-full drop-shadow-lg"><path d="M15 40 H85 V95 H15 Z" fill="#D2B48C"/><path d="M15 40 L5 20 H50 L50 40 Z" fill="#DEB887"/><path d="M85 40 L95 20 H50 L50 40 Z" fill="#DEB887"/><rect x="15" y="40" width="70" height="55" fill="none" stroke="#A0522D" stroke-width="2"/></svg>` },
+            { id: 'ed-dar', ar: 'ed-dar', en: 'the house',
+              svg: `<svg viewBox="0 0 100 100" fill="none" class="w-full h-full drop-shadow-lg"><path d="M10 95 V45 L50 10 L90 45 V95 Z" fill="#FDE047"/><path d="M10 45 L50 10 L90 45" stroke="#EF4444" stroke-width="8" stroke-linejoin="round"/><rect x="40" y="65" width="20" height="30" fill="#8B4513"/><rect x="20" y="55" width="15" height="15" fill="#38BDF8"/><rect x="65" y="55" width="15" height="15" fill="#38BDF8"/></svg>` },
+            { id: 'el karhba', ar: 'el karhba', en: 'the car',
+              svg: `<svg viewBox="0 0 100 100" fill="none" class="w-full h-full drop-shadow-lg"><path d="M10 70 C10 65 15 60 20 60 H80 C85 60 90 65 90 70 V85 H10 Z" fill="#EF4444"/><path d="M25 60 L35 40 H65 L75 60 Z" fill="#38BDF8"/><circle cx="25" cy="85" r="10" fill="#1F2937"/><circle cx="75" cy="85" r="10" fill="#1F2937"/></svg>` }
+        ];
+
+        // State variables
+        let gameState = {
+            questions: [],
+            currentIndex: 0,
+            score: 0,
+            wrongAnswers: [], // To store { question, selected, correct }
+            isPracticeMode: false
+        };
+
+        // DOM Elements
+        const screens = {
+            home: document.getElementById('home-screen'),
+            game: document.getElementById('game-screen'),
+            result: document.getElementById('result-screen')
+        };
+
+        // Navigation
+        function showScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+        }
+
+        function goHome() {
+            showScreen('home');
+        }
+
+        // Game Generation
+        function isValidCombination(prepId, nounId) {
+            if (prepId === 'fi wist') {
+                return ['el kardouna', 'ed-dar', 'el karhba'].includes(nounId);
+            }
+            return true;
+        }
+
+        function generateQuestions(numQuestions = 10, specificQuestions = null) {
+            let pool = [];
+            if (specificQuestions) {
+                pool = specificQuestions;
+            } else {
+                for (let i = 0; i < numQuestions; i++) {
+                    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+                    const validPreps = prepositions.filter(p => isValidCombination(p.id, noun.id));
+                    
+                    const prep = validPreps[Math.floor(Math.random() * validPreps.length)];
+                    
+                    // Generate 3 options (1 correct, 2 random wrong)
+                    let options = [prep];
+                    while (options.length < 3) {
+                        const randomPrep = validPreps[Math.floor(Math.random() * validPreps.length)];
+                        if (!options.find(o => o.id === randomPrep.id)) {
+                            options.push(randomPrep);
+                        }
+                    }
+                    // Shuffle options
+                    options = options.sort(() => Math.random() - 0.5);
+
+                    pool.push({ prep, noun, options });
+                }
+            }
+            return pool;
+        }
+
+        function startNewGame() {
+            gameState.questions = generateQuestions(10);
+            gameState.currentIndex = 0;
+            gameState.score = 0;
+            gameState.wrongAnswers = [];
+            gameState.isPracticeMode = false;
+            
+            showScreen('game');
+            renderQuestion();
+        }
+
+        function startPracticeMode() {
+            // Re-use wrong answers to create new session
+            const practicePool = gameState.wrongAnswers.map(wa => wa.question);
+            gameState.questions = generateQuestions(practicePool.length, practicePool); // regenerate options
+            gameState.currentIndex = 0;
+            gameState.score = 0;
+            gameState.wrongAnswers = []; // reset for this practice session
+            gameState.isPracticeMode = true;
+
+            showScreen('game');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = gameState.questions[gameState.currentIndex];
+            
+            // Update UI Text
+            document.getElementById('current-score').innerText = gameState.score;
+            document.getElementById('question-noun').innerText = q.noun.ar;
+            document.getElementById('blank-space').innerText = '...';
+            document.getElementById('blank-space').className = 'inline-block min-w-[80px] border-b-2 border-slate-400 px-2 text-sky-600';
+            
+            // Set the English translation helper text
+            document.getElementById('english-translation').innerText = `The cat is ${q.prep.en} ${q.noun.en}.`;
+            
+            // Update Progress Bar
+            const progressPercent = (gameState.currentIndex / gameState.questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-text').innerText = `${gameState.currentIndex + 1}/${gameState.questions.length}`;
+
+            // Render Visuals
+            const nounEl = document.getElementById('canvas-noun');
+            const catEl = document.getElementById('canvas-cat');
+            
+            nounEl.innerHTML = q.noun.svg;
+            
+            // Reset styles
+            catEl.style = '';
+            nounEl.style = '';
+            catEl.style.clipPath = 'none';
+
+            // Apply specific layout rules based on preposition
+            applyVisualPlacement(q.prep.id, catEl, nounEl);
+
+            // Re-trigger animation
+            const canvasArea = document.getElementById('canvas-area');
+            canvasArea.classList.remove('bounce-in');
+            void canvasArea.offsetWidth; // trigger reflow
+            canvasArea.classList.add('bounce-in');
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn bg-white border-2 border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl shadow-sm text-lg';
+                btn.innerText = opt.ar;
+                btn.onclick = () => handleAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Reset feedback
+            document.getElementById('feedback-msg').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        function applyVisualPlacement(prep, catEl, nounEl) {
+            // Using absolute pixel values based on a 260px high container to ensure perfect "fouq" collision
+            // Container height: 260px
+            // Floor baseline: bottom 20px
+            const floorPx = 20; 
+            const nounHeightPx = 120; // from w-[120px] h-[120px] classes
+            const catHeightPx = 60;   // from w-[60px] h-[60px] classes
+
+            nounEl.style.position = 'absolute';
+            nounEl.style.bottom = `${floorPx}px`;
+            nounEl.style.left = '50%';
+            nounEl.style.transform = 'translateX(-50%)';
+
+            catEl.style.position = 'absolute';
+
+            switch(prep) {
+                case 'fouq': // above / on 
+                    // To touch exactly: cat's bottom = floor + noun height
+                    const topOfNoun = floorPx + nounHeightPx;
+                    // Minor adjustment for specific svgs if needed, but geometrically this sits directly on top.
+                    catEl.style.bottom = `${topOfNoun - 4}px`; // -4px to make it slightly overlap the top stroke
+                    catEl.style.left = '50%';
+                    catEl.style.transform = 'translateX(-50%)';
+                    catEl.style.zIndex = '20';
+                    break;
+                case 'ta7t': // under
+                    catEl.style.bottom = `${floorPx}px`;
+                    catEl.style.left = '50%';
+                    catEl.style.transform = 'translateX(-50%)';
+                    catEl.style.zIndex = '5'; // behind noun
+                    nounEl.style.zIndex = '10';
+                    break;
+                case 'bijnab': // next to
+                case 'ba7tha': // near (using same visual for now)
+                    catEl.style.bottom = `${floorPx}px`;
+                    catEl.style.left = 'calc(50% + 70px)'; // placed to the right
+                    catEl.style.zIndex = '10';
+                    break;
+                case 'qoddem': // in front of
+                    catEl.style.bottom = `${floorPx - 10}px`; // slightly lower than floor
+                    catEl.style.left = '50%';
+                    catEl.style.transform = 'translateX(-50%)';
+                    catEl.style.zIndex = '20'; // in front
+                    break;
+                case 'wra': // behind
+                    catEl.style.bottom = `${floorPx + 20}px`; // slightly higher
+                    catEl.style.left = 'calc(50% - 40px)'; // peek from left
+                    catEl.style.zIndex = '5'; // behind
+                    nounEl.style.zIndex = '10';
+                    break;
+                case 'fi wist': // inside
+                    catEl.style.bottom = `${floorPx + 30}px`;
+                    catEl.style.left = '50%';
+                    catEl.style.transform = 'translateX(-50%)';
+                    catEl.style.zIndex = '15';
+                    // Clip the bottom half so it looks like it's inside
+                    catEl.style.clipPath = 'polygon(0 0, 100% 0, 100% 60%, 0 60%)';
+                    break;
+            }
+        }
+
+        function handleAnswer(selectedOpt, btnEl) {
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+
+            const q = gameState.questions[gameState.currentIndex];
+            const isCorrect = selectedOpt.id === q.prep.id;
+            const feedbackMsg = document.getElementById('feedback-msg');
+            const blankSpace = document.getElementById('blank-space');
+
+            // Fill the blank
+            blankSpace.innerText = q.prep.ar;
+            blankSpace.className = 'inline-block min-w-[80px] border-b-2 px-2 font-bold';
+
+            if (isCorrect) {
+                gameState.score += 10;
+                document.getElementById('current-score').innerText = gameState.score;
+                
+                btnEl.className = 'option-btn bg-emerald-500 border-2 border-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-sm text-lg';
+                blankSpace.classList.add('text-emerald-500', 'border-emerald-500');
+                
+                feedbackMsg.innerText = "Bravo! Correct! 🎉";
+                feedbackMsg.className = "mt-4 text-center font-bold text-lg rounded-lg p-3 bg-emerald-100 text-emerald-700 block";
+            } else {
+                // Record wrong answer
+                gameState.wrongAnswers.push({
+                    question: q,
+                    selected: selectedOpt,
+                    correct: q.prep
+                });
+
+                btnEl.className = 'option-btn bg-red-500 border-2 border-red-600 text-white font-bold py-3 px-4 rounded-xl shadow-sm text-lg';
+                blankSpace.classList.add('text-red-500', 'border-red-500');
+
+                // Highlight correct answer
+                buttons.forEach(b => {
+                    if (b.innerText === q.prep.ar) {
+                        b.className = 'option-btn bg-emerald-500 border-2 border-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-sm text-lg';
+                    }
+                });
+
+                feedbackMsg.innerText = `La, wrong. The correct answer is "${q.prep.ar}" (${q.prep.en})`;
+                feedbackMsg.className = "mt-4 text-center font-bold text-lg rounded-lg p-3 bg-red-100 text-red-700 block";
+            }
+
+            // Show Next Button
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function handleNext() {
+            gameState.currentIndex++;
+            
+            if (gameState.currentIndex < gameState.questions.length) {
+                renderQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            showScreen('result');
+            document.getElementById('final-score').innerText = `${gameState.score} / ${gameState.questions.length * 10}`;
+
+            const wrongContainer = document.getElementById('wrong-answers-container');
+            const perfectMsg = document.getElementById('perfect-score-msg');
+            const wrongList = document.getElementById('wrong-answers-list');
+
+            if (gameState.wrongAnswers.length > 0) {
+                perfectMsg.classList.add('hidden');
+                wrongContainer.classList.remove('hidden');
+                
+                wrongList.innerHTML = '';
+                gameState.wrongAnswers.forEach(wa => {
+                    const li = document.createElement('li');
+                    li.className = "bg-red-50 p-3 rounded-lg border border-red-100";
+                    li.innerHTML = `
+                        <div class="font-bold text-slate-800">el qattous <span class="text-emerald-600">${wa.correct.ar}</span> ${wa.question.noun.ar}</div>
+                        <div class="text-sm text-slate-500 italic mt-1">The cat is ${wa.correct.en} ${wa.question.noun.en}</div>
+                        <div class="text-sm text-red-500 mt-1">You answered: ${wa.selected.ar}</div>
+                    `;
+                    wrongList.appendChild(li);
+                });
+            } else {
+                wrongContainer.classList.add('hidden');
+                perfectMsg.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
